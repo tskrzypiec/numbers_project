@@ -5,86 +5,90 @@
 #include <ctype.h>
 
 #define MAX 20
-#define DEBUG 0
+#define DEBUG 1
 
 int main()
 {
-    char s1[MAX], s2[MAX], s3[MAX];
-    int p, w, i, j, k, n;
+    char first_num[MAX], second_num[MAX], sum_table[MAX];
+    int p; // przeniesiona "do góry" liczba
+    int w; // wynik dodawania
+    int i, j; // indeksy w łańcuchów
+    int k; // licznik pętli
+    int short_num; // długość krótszego z łańcuchów
 
     // odczytujemy liczby do dodawania
     printf("Wpisz dwie liczby poprzedzając każdą z nich enterem:\n");
-    scanf("%s\n%s", s1, s2);
-    if(DEBUG) { printf("DEBUG s1: %s, s2: %s\n", s1, s2); }
+    scanf("%s\n%s", first_num, second_num);
+    if(DEBUG) { printf("DEBUG first_num: %s, second_num: %s\n", first_num, second_num); }
 
     // obliczamy długości każdego z łańcuchów
-    i = strlen(s1);
-    j = strlen(s2);
-    if(DEBUG) { printf("DEBUG strlen(s1): %d, strlen(s2): %d\n", i, j); }
+    i = strlen(first_num);
+    j = strlen(second_num);
+    if(DEBUG) { printf("DEBUG strlen(first_num): %d, strlen(second_num): %d\n", i, j); }
 
-    // w n wyznaczamy długość najkrótszego łańcucha
-    n = i;
+    // w short_num wyznaczamy długość najkrótszego łańcucha
+    short_num = i;
     if(j < i)
     {
-        n = j;
+        short_num = j;
     }
-    if(DEBUG) { printf("DEBUG n: %d\n", n); }
+    if(DEBUG) { printf("DEBUG short_num: %d\short_num", short_num); }
 
     // zerujemy przeniesienie oraz łańcuch wynikowy
     p = 0;
-    memset(s3, 0, MAX);
-    if(DEBUG) { printf("DEBUG memset s3: %s\n", s3); }
+    memset(sum_table, 0, MAX); // memset wypełnia zerami wskazaną ilość w tabeli
+    if(DEBUG) { printf("DEBUG memset sum_table: %s\n", sum_table); }
 
     // sumujemy kolejne od końca cyfry obu łańcuchów
-    for(k = 0; k != n; k++)
+    for(k = 0; k != short_num; k++)
     {
-        w = s1[i-1] + s2[j-1] + p - 96;
-        if(DEBUG) { printf("DEBUG w 1st stage: %d\n", w); }
+        w = first_num[i-1] + second_num[j-1] + p - 96;
+        if(DEBUG) { printf("DEBUG w 1st stage w =: %d\n", w); }
         i = i - 1;
         j = j - 1;
-        p = w / 10;
-        memcpy(s3+1, s3, sizeof(s3));
-        s3[0] = (char) (w % 10) + 48;
-        if(DEBUG) { printf("DEBUG s3 1st stage: %s\n", s3); }
+        p = w / 10; // uzyskamy w ten sposób pierwszą liczbę, int zje nam reszte
+        memcpy(sum_table+1, sum_table, sizeof(sum_table));
+        sum_table[0] = (char) (w % 10) + 48; // rzutujemy dla pewności %10 i dodajemy 48 ASCII
+        if(DEBUG) { printf("DEBUG sum_table 1st stage: %s\n", sum_table); }
     }
-    if(DEBUG) { printf("DEBUG s3 1st stage complete: %s\n", s3); }
+    if(DEBUG) { printf("DEBUG sum_table 1st stage complete: %s\n", sum_table); }
 
-    // jeżeli łańcuch s1 ma jeszcze cyfry, to dodajemy do nich
+    // jeżeli łańcuch first_num ma jeszcze cyfry, to dodajemy do nich
     // przeniesienia i umieszczamy w łańcuchu wynikowym
     while(i > 0)
     {
-        w = s1[--i] + p - 48;
-        if(DEBUG) { printf("DEBUG w 2nd stage: %d\n", w); }
+        w = first_num[--i] + p - 48;
+        if(DEBUG) { printf("DEBUG w 2nd stage w=: %d\n", w); }
         p = w / 10;
-        memcpy(s3+1, s3, sizeof(s3));
-        s3[0] = (char) (w % 10) + 48;
-        if(DEBUG) { printf("DEBUG s3 2nd stage: %s\n", s3); }
+        memcpy(sum_table+1, sum_table, sizeof(sum_table));
+        sum_table[0] = (char) (w % 10) + 48;
+        if(DEBUG) { printf("DEBUG sum_table 2nd stage: %s\n", sum_table); }
     }
-    if(DEBUG) { printf("DEBUG s3 2nd stage complete: %s\n", s3); }
+    if(DEBUG) { printf("DEBUG sum_table 2nd stage complete: %s\n", sum_table); }
 
-    // jeżeli łańcuch s2 ma jeszcze cyfry, to dodajemy do nich
+    // jeżeli łańcuch second_num ma jeszcze cyfry, to dodajemy do nich
     // przeniesienia i umieszczamy w łańcuchu wynikowym
     while(j > 0)
     {
-        w = s2[--j] + p - 48;
+        w = second_num[--j] + p - 48;
         if(DEBUG) { printf("DEBUG w 3rd stage: %d\n", w); }
         p = w / 10;
-        memcpy(s3+1, s3, sizeof(s3));
-        s3[0] = (char) (w % 10) + 48;
-        if(DEBUG) { printf("DEBUG s3 3rd stage: %s\n", s3); }
+        memcpy(sum_table+1, sum_table, sizeof(sum_table));
+        sum_table[0] = (char) (w % 10) + 48;
+        if(DEBUG) { printf("DEBUG sum_table 3rd stage: %s\n", sum_table); }
     }
-    if(DEBUG) { printf("DEBUG s3 3rd stage complete: %s\n", s3); }
+    if(DEBUG) { printf("DEBUG sum_table 3rd stage complete: %s\n", sum_table); }
 
     // jeżeli pozostało przeniesienie, to dołączamy je do cyfr
     // w łańcuchu wynikowym
     if(p > 0)
     {
-        memcpy(s3+1, s3, sizeof(s3));
-        s3[0] = p + 48;
+        memcpy(sum_table+1, sum_table, sizeof(sum_table)); // kopiujemy sum_table (tyle komorek ile rozmiar sum_table) do sum+table+1
+        sum_table[0] = p + 48;
     }
 
     // wyświetlamy wynik
-    printf("wynik: %s\n", s3);
+    printf("wynik: %s\n", sum_table);
 
     return 0;
 }
